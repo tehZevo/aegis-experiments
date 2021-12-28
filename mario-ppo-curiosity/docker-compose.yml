@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+
+  controller:
+    build: .
+
+  mario:
+    build: https://github.com/tehZevo/aegis-mario.git
+    ports:
+      - "8080:80"
+    environment:
+      ACTIONS: "COMPLEX_MOVEMENT"
+
+  ae:
+    build: https://github.com/tehZevo/aegis-ae.git
+    environment:
+      MODEL_PATH: "models/ae.h5"
+    volumes:
+      - "./models:/app/models"
+
+  ppo:
+    build: https://github.com/tehZevo/aegis-ppo.git
+    volumes:
+      - "./models:/app/models"
+    environment:
+      MODEL_PATH: "models/ppo"
+      #mobilenet_v2 returns 1280-long feature vectors
+      OBS_SHAPE: "[1280]"
+      #"12" for complex movement
+      ACTION_SHAPE: "[12]"
+
+  feature-extractor:
+    build: https://github.com/tehZevo/aegis-keras-app.git
+
+  viz:
+    build: https://github.com/tehZevo/aegis-visualizer.git
+    ports:
+      - "8090:80"
+
+  builder:
+    build: https://github.com/tehZevo/keras-model-builder.git
+    volumes:
+      - "./models:/app/models"
+    profiles:
+      - donotstart

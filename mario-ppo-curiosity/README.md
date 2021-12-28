@@ -1,6 +1,6 @@
 # Mario/PPO/Curiosity
 
-Attempt to train a PPO agent to explore SMB using only intrinsic curiosity/surprise-like reward
+Attempt to train a PPO agent to explore SMB using only intrinsic curiosity/surprise-like reward. Uses an *un-finetuned* mobilenet_v2 (imagenet weights) feature extractor to "see" the screen.
 
 ## Setup
 Build an autoencoder model:

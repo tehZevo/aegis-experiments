@@ -17,3 +17,4 @@ Split PPO's action into "action" and "memory" parts, concat the observation with
 - document usage
 - document experiment results
 - on "sentience"
+- separate compose profiles for recurrent/nonrecurrent nodes to compare?

@@ -4,9 +4,12 @@ services:
   controller:
     build: .
 
-  #rl environment TODO
+  env:
+    build: https://github.com/tehZevo/aegis-vanilla-env.git
+    environment:
+      ENV_NAME: "LunarLanderContinuous-v2"
 
-  ppo:
+  agent:
     build: https://github.com/tehZevo/aegis-ppo.git
     volumes:
       - "./models:/app/models"

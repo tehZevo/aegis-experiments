@@ -21,7 +21,7 @@ What about feeding AE-encoded features to PPO instead of the feature extractor's
 
 ## TODO
 - try feeding AE-encoded features to PPO?
-- add image/description of experiement
+- add description of experiment
 - document usage
 - document experiement results
 - use randomsearch to find optimal hyperparameters

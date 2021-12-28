@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+
+  controller:
+    build: .
+
+  #rl environment TODO
+
+  ppo:
+    build: https://github.com/tehZevo/aegis-ppo.git
+    volumes:
+      - "./models:/app/models"
+    environment:
+      MODEL_PATH: "models/ppo"
+      OBS_SHAPE: "TODO"
+      ACTION_SHAPE: "TODO"

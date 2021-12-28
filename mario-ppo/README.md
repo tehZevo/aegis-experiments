@@ -9,7 +9,7 @@ Testing using a pretrained Keras app feature extractor to reduce the dimensional
 *TODO*
 
 ## TODO
-- add image/description of experiment
+- add description of experiment
 - document usage experiment
 - document experiment results
 - use randomsearch to find optimal hyperparameters

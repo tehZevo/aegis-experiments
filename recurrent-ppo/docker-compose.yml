@@ -15,5 +15,19 @@ services:
       - "./models:/app/models"
     environment:
       MODEL_PATH: "models/ppo"
-      OBS_SHAPE: "TODO"
-      ACTION_SHAPE: "TODO"
+      OBS_SHAPE: "[16]" #8 from lunar lander, 8 from memory vector
+      ACTION_SHAPE: "[10]" #2 from lunar lander, 8 from memory vector
+
+  tensorboard-logger:
+    build: https://github.com/tehZevo/aegis-tensorboard.git
+    volumes:
+      - "./tensorboard:/app/runs"
+
+  #tensorflow container running TB
+  tensorboard:
+    image: tensorflow/tensorflow
+    command: tensorboard --logdir=/runs --bind_all
+    ports:
+      - 6006:6006
+    volumes:
+      - "./tensorboard:/runs"

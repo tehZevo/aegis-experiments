@@ -5,7 +5,8 @@ from nd_to_json import json_to_nd, nd_to_json
 from protopost import protopost_client as ppcl
 
 REPEAT_ACTION = 4 #TODO: hardcoded repeat action N times
-TRAINING_STEPS = 100000 #TODO: hardcoded n steps
+TRAINING_STEPS = 10000 #TODO: hardcoded n steps #TODO: try 1m
+N_SCORE_EPISODES = 10 #use average total reward of last N episodes as the metric
 
 MEMORY_VECTOR_SIZE = int(os.getenv("MEMORY_SIZE", 0))
 
@@ -30,6 +31,11 @@ while True:
     print("Waiting for env...")
     time.sleep(1)
 
+def calc_last_n_avg():
+  if len(last_n_episode_rewards) == 0:
+    return float("nan")
+  return  np.mean(last_n_episode_rewards).item()
+
 #assumes obs is nd_to_json'd, but memory is not
 def combine_obs(obs, memory):
   obs = json_to_nd(obs)
@@ -53,8 +59,10 @@ memory = np.zeros([MEMORY_VECTOR_SIZE])
 #combine memory and obs
 obs = combine_obs(obs, memory)
 
+last_n_episode_rewards = []
+episode_reward = 0
 i = 0
-total_reward = 0
+
 while True:
   #get action
   action = GET_ACTION(obs)
@@ -65,18 +73,23 @@ while True:
   for _ in range(REPEAT_ACTION):
     result = ENV(action)
     obs, done, r, info = itemgetter("obs", "done", "reward", "info")(result)
-    reward += r / 100. #based on the range of rewards observed
-  total_reward += reward
+    episode_reward += r
+    #append and reset episode reward, slice to last N episodes
+    if done:
+      last_n_episode_rewards.append(episode_reward)
+      episode_reward = 0
+      last_n_episode_rewards = last_n_episode_rewards[-N_SCORE_EPISODES:]
+    reward += r
 
   #combine obs with memory again
   obs = combine_obs(obs, memory)
   #reward agent
-  GIVE_REWARD(reward)
+  GIVE_REWARD(reward / 100.) #based on the range of rewards observed
 
   i += REPEAT_ACTION
-  print(f"{i}/{TRAINING_STEPS}: {reward} ({total_reward/i} avg)")
+  print(f"{i}/{TRAINING_STEPS}: {reward} ({calc_last_n_avg()} avg over last {N_SCORE_EPISODES} eps)")
   if i >= TRAINING_STEPS:
     break
 
-average_reward = total_reward / i
-print(json.dumps({"average_reward":average_reward}))
+#dump average of last N episodes
+print(json.dumps({f"last_{N_SCORE_EPISODES}_eps_avg":calc_last_n_avg()}))

@@ -3,6 +3,7 @@ services:
 
   main:
     build: .
+    image: recurrent-ppo-search-main:latest
     environment:
       BLACKOUT_RATE: ${BLACKOUT_RATE}
       MEMORY_SIZE: ${MEMORY_SIZE}
@@ -12,11 +13,13 @@ services:
 
   env:
     build: https://github.com/tehZevo/aegis-vanilla-env.git
+    image: recurrent-ppo-search-env:latest
     environment:
       ENV_NAME: "LunarLanderContinuous-v2"
 
   agent:
     build: https://github.com/tehZevo/aegis-ppo.git
+    image: recurrent-ppo-search-agent:latest
     environment:
       MODEL_PATH: "models/ppo"
       OBS_SHAPE: "[$AGENT_OBS]"

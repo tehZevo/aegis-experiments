@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+
+  main:
+    build: .
+    environment:
+      BLACKOUT_RATE: ${BLACKOUT_RATE}
+      MEMORY_SIZE: ${MEMORY_SIZE}
+    depends_on:
+      - env
+      - agent
+
+  env:
+    build: https://github.com/tehZevo/aegis-vanilla-env.git
+    environment:
+      ENV_NAME: "LunarLanderContinuous-v2"
+
+  agent:
+    build: https://github.com/tehZevo/aegis-ppo.git
+    environment:
+      MODEL_PATH: "models/ppo"
+      OBS_SHAPE: "[$AGENT_OBS]"
+      ACTION_SHAPE: "[$AGENT_ACTION]"

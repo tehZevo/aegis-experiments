@@ -1,18 +1,34 @@
 from operator import itemgetter
+import json, os, time
 import numpy as np
 from nd_to_json import json_to_nd, nd_to_json
 from protopost import protopost_client as ppcl
 
 REPEAT_ACTION = 4 #TODO: hardcoded repeat action N times
+TRAINING_STEPS = 100000 #TODO: hardcoded n steps
 
-MEMORY_VECTOR_SIZE = 8
+MEMORY_VECTOR_SIZE = int(os.getenv("MEMORY_SIZE", 0))
 
 ENV = lambda action=None: ppcl("http://env", action)
 ENV_OBS = lambda: ppcl("http://env/obs")
 GET_ACTION = lambda obs: ppcl("http://agent/step", obs)
 GIVE_REWARD = lambda r: ppcl("http://agent/reward", r)
 
-TENSORBOARD = lambda run_name, group, tag, value: ppcl(f"http://tensorboard-logger/scalar/{run_name}/{group}/{tag}", value)
+while True:
+  try:
+    GIVE_REWARD(0)
+    break
+  except Exception:
+    print("Waiting for agent...")
+    time.sleep(1)
+
+while True:
+  try:
+    ENV_OBS()
+    break
+  except Exception:
+    print("Waiting for env...")
+    time.sleep(1)
 
 #assumes obs is nd_to_json'd, but memory is not
 def combine_obs(obs, memory):
@@ -38,6 +54,7 @@ memory = np.zeros([MEMORY_VECTOR_SIZE])
 obs = combine_obs(obs, memory)
 
 i = 0
+total_reward = 0
 while True:
   #get action
   action = GET_ACTION(obs)
@@ -49,12 +66,17 @@ while True:
     result = ENV(action)
     obs, done, r, info = itemgetter("obs", "done", "reward", "info")(result)
     reward += r / 100. #based on the range of rewards observed
+  total_reward += reward
 
   #combine obs with memory again
   obs = combine_obs(obs, memory)
   #reward agent
   GIVE_REWARD(reward)
-  #log reward on tensorboard
-  TENSORBOARD("recurrent-ppo", "reward", "reward", reward)
-  i += 1
-  print(f"{i}: {reward}")
+
+  i += REPEAT_ACTION
+  print(f"{i}/{TRAINING_STEPS}: {reward} ({total_reward/i} avg)")
+  if i >= TRAINING_STEPS:
+    break
+
+average_reward = total_reward / i
+print(json.dumps({"average_reward":average_reward}))

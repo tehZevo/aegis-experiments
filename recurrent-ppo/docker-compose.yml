@@ -1,33 +1,34 @@
 version: "3.8"
 services:
 
-  controller:
-    build: .
-
-  env:
-    build: https://github.com/tehZevo/aegis-vanilla-env.git
-    environment:
-      ENV_NAME: "LunarLanderContinuous-v2"
-
-  agent:
-    build: https://github.com/tehZevo/aegis-ppo.git
+  random-search:
+    build: https://github.com/tehZevo/aegis-random-search.git
     volumes:
-      - "./models:/app/models"
+      - "//var/run/docker.sock:/var/run/docker.sock"
+      #mount target build context
+      - "./search-target:/target"
     environment:
-      MODEL_PATH: "models/ppo"
-      OBS_SHAPE: "[16]" #8 from lunar lander, 8 from memory vector
-      ACTION_SHAPE: "[10]" #2 from lunar lander, 8 from memory vector
+      NUM_WORKERS: 4
+      EXPERIMENT_NAME: "recurrent-ppo"
+      TENSORBOARD_LOGGER_URL: "http://logger"
+      #OBS+8 from lunar lander
+      #ACTION+2 from lunar lander
+      PARAMS: |
+        META_MEMORY:
+          - {"MEMORY_SIZE":0, "AGENT_OBS":8, "AGENT_ACTION":2}
+          - {"MEMORY_SIZE":8, "AGENT_OBS":16, "AGENT_ACTION":10}
+          - {"MEMORY_SIZE":32, "AGENT_OBS":40, "AGENT_ACTION":34}
+        BLACKOUT_RATE: [0, 0.5, 0.9]
 
-  tensorboard-logger:
+  logger:
     build: https://github.com/tehZevo/aegis-tensorboard.git
     volumes:
       - "./tensorboard:/app/runs"
 
-  #tensorflow container running TB
   tensorboard:
     image: tensorflow/tensorflow
-    command: tensorboard --logdir=/runs --bind_all
-    ports:
-      - 6006:6006
     volumes:
       - "./tensorboard:/runs"
+    ports:
+      - "6006:6006"
+    command: "tensorboard --logdir /runs --bind_all"

@@ -5,7 +5,7 @@ Attempt to train a PPO agent to explore SMB using only intrinsic curiosity/surpr
 ## Setup
 Build an autoencoder model:
 ```
-docker-compose run --rm builder dense_ae [1280] --latent-size 32 - compile - save "models/ae.h5"
+docker-compose run --rm builder dense_ae [1280] --latent-size 32 - compile - summary - save "models/ae.h5" - end
 ```
 
 ## Structure

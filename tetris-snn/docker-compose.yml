@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+
+  controller:
+    build: .
+
+  tetris:
+    build: https://github.com/tehZevo/aegis-tetris.git
+    ports:
+      - "8080:80"
+
+  snn:
+    build: https://github.com/tehZevo/aegis-lightcube.git
+    ports:
+      - "8081:80"
+    environment:
+      AUTO_REWARD: "true"
+      DIMENSIONS: 2
+      LATTICE_SIZE: 64
+      KERNEL_SIZE: 3

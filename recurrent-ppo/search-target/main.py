@@ -5,10 +5,11 @@ from nd_to_json import json_to_nd, nd_to_json
 from protopost import protopost_client as ppcl
 
 REPEAT_ACTION = 4 #TODO: hardcoded repeat action N times
-TRAINING_STEPS = 10000 #TODO: hardcoded n steps #TODO: try 1m
-N_SCORE_EPISODES = 10 #use average total reward of last N episodes as the metric
+TRAINING_STEPS = 200000 #1000000 #TODO: hardcoded n steps
+N_SCORE_EPISODES = 100 #use average total reward of last N episodes as the metric
 
 MEMORY_VECTOR_SIZE = int(os.getenv("MEMORY_SIZE", 0))
+BLACKOUT_RATE = float(os.getenv("BLACKOUT_RATE", 0))
 
 ENV = lambda action=None: ppcl("http://env", action)
 ENV_OBS = lambda: ppcl("http://env/obs")
@@ -39,6 +40,11 @@ def calc_last_n_avg():
 #assumes obs is nd_to_json'd, but memory is not
 def combine_obs(obs, memory):
   obs = json_to_nd(obs)
+
+  #randomly black out observation
+  if np.random.random() < BLACKOUT_RATE:
+    obs = np.zeros_like(obs)
+
   obs = np.concatenate([memory, obs])
   obs = nd_to_json(obs)
   return obs

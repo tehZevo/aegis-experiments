@@ -25,6 +25,3 @@ vanilla-env, ppo, tensorboard-logger
 - document experiment results
 - on "sentience"
 - separate compose profiles for recurrent/nonrecurrent nodes to compare?
-- determine appropriate reward scale if needed
-- use better metric than average reward over all timesteps
-  - better would be average over last N episodes

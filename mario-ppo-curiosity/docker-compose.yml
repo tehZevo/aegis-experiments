@@ -13,10 +13,12 @@ services:
 
   ae:
     build: https://github.com/tehZevo/aegis-ae.git
-    environment:
-      MODEL_PATH: "models/ae.h5"
     volumes:
       - "./models:/app/models"
+    environment:
+      INPUT_SIZE: 1280
+      MODEL_PATH: "models/ae.keras"
+
 
   ppo:
     build: https://github.com/tehZevo/aegis-ppo.git
